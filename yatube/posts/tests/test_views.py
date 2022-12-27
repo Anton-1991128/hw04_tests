@@ -118,8 +118,8 @@ class PostsView_html_Tests(TestCase):
             author=self.user,
             group=self.group)
         response_index = self.authorized_client.get(reverse('posts:index'))
-        response_group = self.authorized_client.get
-        (reverse('posts:group_list', kwargs={'slug': f'{self.group.slug}'}))
+        response_group = self.authorized_client.get(
+            reverse('posts:group_list', kwargs={'slug': f'{self.group.slug}'}))
         response_profile = self.authorized_client.get(reverse(
             'posts:profile', kwargs={'username': f'{self.user.username}'}))
         index = response_index.context['page_obj']
