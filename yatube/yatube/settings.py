@@ -2,6 +2,7 @@ import os
 
 POSTS_COUNT: int = 10
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

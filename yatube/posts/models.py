@@ -6,9 +6,10 @@ User = get_user_model()
 
 
 class Group(models.Model):
-    title = models.CharField('заголовок', max_length=200)
-    slug = models.SlugField('группы', max_length=100, unique=True)
-    description = models.TextField('Описание')
+    title = models.CharField('заголовок', max_length=200,
+                             help_text='Добавление заголовока')
+    slug = models.SlugField('группы', max_length=100, unique=True,)
+    description = models.TextField('Описание', help_text='Добавление описания')
 
     class Meta:
         verbose_name = "Группа"
@@ -19,7 +20,7 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField('Текст поста')
+    text = models.TextField('Текст поста', help_text='Введите текст поста')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -34,7 +35,8 @@ class Post(models.Model):
         blank=True,
         null=True,
         verbose_name='Группа постов',
-        related_name='posts'
+        related_name='posts',
+        help_text='Группа, к которой будет относиться пост'
     )
 
     class Meta:
