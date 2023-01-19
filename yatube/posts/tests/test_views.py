@@ -1,11 +1,13 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django import forms
+from django.conf import settings
 
 from ..forms import PostForm
 from ..models import Post, Group, User
 
 TEST_OF_POST: int = 13
+TEST_OF_POST2: int = 10
 
 
 class PostsView_html_Tests(TestCase):
@@ -46,7 +48,6 @@ class PostsView_html_Tests(TestCase):
         self.assertEqual(post.author, self.post.author)
         self.assertEqual(post.group, self.post.group)
         self.assertEqual(post.pub_date, self.post.pub_date)
-        self.assertEqual(post, self.post)
 
     def test_post_index_show_correct_context(self):
         response = self.authorized_client.get(reverse('posts:index'))
@@ -79,35 +80,26 @@ class PostsView_html_Tests(TestCase):
             ('posts:post_create', None,),
             ('posts:post_edit', (self.post.id,)),
         )
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                response = self.authorized_client.get(
-                    reverse('posts:post_create'))
-                response1 = self.authorized_client_author.get(
-                    reverse('posts:post_edit', args=(self.post.id,)))
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, expected)
-                form_field1 = response1.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field1, expected)
         for name, args in name_args:
-            with self.subTest(name=name):
-                response2 = self.authorized_client_author.get(
-                    reverse(name, args=args))
-                self.assertIsInstance(response2.context['form'], PostForm)
-                self.assertIn('form', response.context)
+            for value, expected in form_fields.items():
+                with self.subTest(name=name):
+                    response = self.authorized_client_author.get(
+                        reverse(name, args=args))
+                    form_field = response.context.get('form').fields.get(value)
+                    self.assertIsInstance(form_field, expected)
+                    self.assertIn('form', response.context)
+                    self.assertIsInstance(response.context['form'], PostForm)
 
     def test_post_added_correctly(self):
         """Пост при создании добавлен корректно"""
         response = self.authorized_client_author.get(reverse(
-            'posts:group_list', args={self.group2.slug}))
+            'posts:group_list', args=(self.group2.slug,)))
         self.assertEqual(len(response.context['page_obj']), 0)
         post = Post.objects.first()
         self.assertEqual(post.group, self.post.group)
         response_group = self.authorized_client_author.get(reverse(
-            'posts:group_list', args={self.group.slug}))
-        group_post = response_group.context['group']
-        post2 = group_post.posts.first()
-        self.assertEqual(post, post2)
+            'posts:group_list', args=(self.group.slug,)))
+        self.assertEqual(len(response_group.context['page_obj']), 1)
 
 
 class PostsPAGINATOR_Tests(TestCase):
@@ -138,8 +130,8 @@ class PostsPAGINATOR_Tests(TestCase):
             ('posts:profile', (self.user,)),
         )
         pages = (
-            ('?page=1', 10),
-            ('?page=2', 3),
+            ('?page=1', settings.POSTS_COUNT),
+            ('?page=2', (TEST_OF_POST-TEST_OF_POST2)),
         )
         for name, args in templates_url_names:
             for page, total in pages:

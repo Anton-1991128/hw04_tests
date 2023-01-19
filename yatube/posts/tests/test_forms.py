@@ -21,6 +21,11 @@ class Postsform_Tests(TestCase):
             description='Описание ',
             slug='test-slug2',
         )
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='Тестовый пост',
+            group=cls.group,
+        )
 
     def setUp(self):
         self.authorized_client = Client()
@@ -39,6 +44,7 @@ class Postsform_Tests(TestCase):
 
     def test_create_post(self):
         '''Проверка создания поста'''
+        Post.objects.get(author=self.user).delete()
         posts_count = Post.objects.count()
         self.assertEqual(Post.objects.count(), 0)
         form_data = {'text': 'Текст тестового поста',
@@ -57,20 +63,21 @@ class Postsform_Tests(TestCase):
 
     def test_can_edit_post(self):
         '''Проверка что можно редактировать пост  '''
-        self.post = Post.objects.create(text='Тестовый текст',
-                                        author=self.user,
-                                        group=self.group)
         form_data = {'text': 'Текст записанный в форму',
-                     'group': self.group2.id}
-        Post_count = Post.objects.count()
+                     'group': self.group2.pk}
+        post_count = Post.objects.count()
         self.assertEqual(Post.objects.count(), 1)
         response = self.authorized_client.post(
             reverse('posts:post_edit', args=(self.post.id,)),
             data=form_data,
             follow=True)
-        self.assertEqual(Post.objects.count(), Post_count)
+        post = Post.objects.first()
+        self.assertEqual(Post.objects.count(), post_count)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(self.post.author, self.user)
-        self.assertNotEqual(self.post.text, form_data['text'])
-        self.assertNotEqual(self.post.group, form_data['group'])
-        self.assertEqual(Post.objects.count(), Post_count)
+        self.assertEqual(post.author, self.user)
+        self.assertEqual(post.text, form_data['text'])
+        self.assertEqual(post.group.pk, form_data['group'])
+        self.assertEqual(Post.objects.count(), post_count)
+        response_group = self.authorized_client.get(reverse(
+            'posts:group_list', args=(self.group.slug,)))
+        self.assertEqual(len(response_group.context['page_obj']), 0)
