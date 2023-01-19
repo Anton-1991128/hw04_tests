@@ -131,7 +131,7 @@ class PostsPAGINATOR_Tests(TestCase):
         )
         pages = (
             ('?page=1', settings.POSTS_COUNT),
-            ('?page=2', (TEST_OF_POST-TEST_OF_POST2)),
+            ('?page=2', (TEST_OF_POST - TEST_OF_POST2)),
         )
         for name, args in templates_url_names:
             for page, total in pages:
