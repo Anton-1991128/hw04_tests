@@ -82,8 +82,8 @@ class PostsView_html_Tests(TestCase):
         )
         for name, args in name_args:
             with self.subTest(name=name):
-                response = self.authorized_client_author.get(
-                        reverse(name, args=args))
+                response = self.authorized_client_author.get(reverse(
+                    name, args=args))
                 self.assertIn('form', response.context)
                 self.assertIsInstance(response.context['form'], PostForm)
                 for value, expected in form_fields.items():
