@@ -81,14 +81,16 @@ class PostsView_html_Tests(TestCase):
             ('posts:post_edit', (self.post.id,)),
         )
         for name, args in name_args:
-            for value, expected in form_fields.items():
-                with self.subTest(name=name):
-                    response = self.authorized_client_author.get(
+            with self.subTest(name=name):
+                response = self.authorized_client_author.get(
                         reverse(name, args=args))
-                    form_field = response.context.get('form').fields.get(value)
-                    self.assertIsInstance(form_field, expected)
-                    self.assertIn('form', response.context)
-                    self.assertIsInstance(response.context['form'], PostForm)
+                self.assertIn('form', response.context)
+                self.assertIsInstance(response.context['form'], PostForm)
+                for value, expected in form_fields.items():
+                    with self.subTest(value=value):
+                        form_field = response.context.get(
+                            'form').fields.get(value)
+                        self.assertIsInstance(form_field, expected)
 
     def test_post_added_correctly(self):
         """Пост при создании добавлен корректно"""

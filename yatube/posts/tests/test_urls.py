@@ -54,10 +54,10 @@ class PostsURLTests(TestCase):
             with self.subTest(name=name):
                 response = self.authorized_client.get(reverse(
                     name, args=args))
-            if name == 'posts:post_edit':
-                self.assertRedirects(response, url1)
-            else:
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+                if name == 'posts:post_edit':
+                    self.assertRedirects(response, url1)
+                else:
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_unauthorized_user_urls(self):
         """Проверка доступности  для неавторизованного пользователя ."""
@@ -69,12 +69,12 @@ class PostsURLTests(TestCase):
             with self.subTest(name=name):
                 response = self.client.get(reverse(
                     name, args=args))
-            url1 = reverse('users:login')
-            url2 = reverse(name, args=args)
-            if name in listik:
-                self.assertRedirects(response, f'{url1}?next={url2}')
-            else:
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+                url1 = reverse('users:login')
+                url2 = reverse(name, args=args)
+                if name in listik:
+                    self.assertRedirects(response, f'{url1}?next={url2}')
+                else:
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_template(self):
         """Проверка шаблонов."""

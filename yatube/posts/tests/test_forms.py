@@ -44,7 +44,7 @@ class Postsform_Tests(TestCase):
 
     def test_create_post(self):
         '''Проверка создания поста'''
-        Post.objects.get(author=self.user).delete()
+        Post.objects.all().delete()
         posts_count = Post.objects.count()
         self.assertEqual(Post.objects.count(), 0)
         form_data = {'text': 'Текст тестового поста',
@@ -74,7 +74,7 @@ class Postsform_Tests(TestCase):
         post = Post.objects.first()
         self.assertEqual(Post.objects.count(), post_count)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(post.author, self.user)
+        self.assertEqual(post.author, self.post.author)
         self.assertEqual(post.text, form_data['text'])
         self.assertEqual(post.group.pk, form_data['group'])
         self.assertEqual(Post.objects.count(), post_count)
